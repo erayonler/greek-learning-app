@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Yunanca Öğreniyorum</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🇬🇷</text></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Crimson Pro', Georgia, serif; -webkit-font-smoothing: antialiased; }
+    button { font-family: inherit; }
+    input { font-family: inherit; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+const { useState, useMemo } = React;
+
+const ALPHABET = [
+  { upper: "Α", lower: "α", name: "Alfa", pron: "a", example: "αγάπη (agápi) = sevgi" },
+  { upper: "Β", lower: "β", name: "Beta", pron: "v", example: "βιβλίο (vivlío) = kitap" },
+  { upper: "Γ", lower: "γ", name: "Gama", pron: "g/y", example: "γάτα (gáta) = kedi" },
+  { upper: "Δ", lower: "δ", name: "Delta", pron: "th (the)", example: "δρόμος (thrómos) = yol" },
+  { upper: "Ε", lower: "ε", name: "Epsilon", pron: "e", example: "ελιά (eliá) = zeytin" },
+  { upper: "Ζ", lower: "ζ", name: "Zeta", pron: "z", example: "ζωή (zoí) = hayat" },
+  { upper: "Η", lower: "η", name: "Eta", pron: "i", example: "ήλιος (ílios) = güneş" },
+  { upper: "Θ", lower: "θ", name: "Teta", pron: "th (think)", example: "θάλασσα (thálasa) = deniz" },
+  { upper: "Ι", lower: "ι", name: "Yota", pron: "i", example: "ιστορία (istoría) = tarih" },
+  { upper: "Κ", lower: "κ", name: "Kapa", pron: "k", example: "καλός (kalós) = iyi" },
+  { upper: "Λ", lower: "λ", name: "Lambda", pron: "l", example: "λόγος (lógos) = söz" },
+  { upper: "Μ", lower: "μ", name: "Mi", pron: "m", example: "μητέρα (mitéra) = anne" },
+  { upper: "Ν", lower: "ν", name: "Ni", pron: "n", example: "νερό (neró) = su" },
+  { upper: "Ξ", lower: "ξ", name: "Ksi", pron: "ks", example: "ξένος (ksénos) = yabancı" },
+  { upper: "Ο", lower: "ο", name: "Omikron", pron: "o", example: "όνομα (ónoma) = isim" },
+  { upper: "Π", lower: "π", name: "Pi", pron: "p", example: "πατέρας (patéras) = baba" },
+  { upper: "Ρ", lower: "ρ", name: "Ro", pron: "r", example: "ρόδο (ródο) = gül" },
+  { upper: "Σ", lower: "σ/ς", name: "Sigma", pron: "s", example: "σπίτι (spíti) = ev" },
+  { upper: "Τ", lower: "τ", name: "Taf", pron: "t", example: "τραπέζι (trapézi) = masa" },
+  { upper: "Υ", lower: "υ", name: "Ipsilon", pron: "i", example: "ύπνος (ípnos) = uyku" },
+  { upper: "Φ", lower: "φ", name: "Fi", pron: "f", example: "φίλος (fílos) = arkadaş" },
+  { upper: "Χ", lower: "χ", name: "Hi", pron: "h/kh", example: "χρόνος (hrónos) = zaman" },
+  { upper: "Ψ", lower: "ψ", name: "Psi", pron: "ps", example: "ψωμί (psomí) = ekmek" },
+  { upper: "Ω", lower: "ω", name: "Omega", pron: "o", example: "ώρα (óra) = saat" },
+];
+
+const ARTICLES = [
+  {
+    id: 1, title: "Η οικογένειά μου", titleTr: "Ailem", level: "A1", icon: "👨‍👩‍👧‍👦", color: "#E91E63",
+    paragraphs: [
+      { gr: "Γεια σας! Με λένε Μαρία και είμαι από την Αθήνα. Σήμερα θέλω να σας μιλήσω για την οικογένειά μου.", pron: "Ya sas! Me lene Maria ke ime apo tin Athina. Simera thelo na sas miliso ya tin ikoyenia mu.", tr: "Merhaba! Benim adım Maria ve Atina'danım. Bugün size ailemden bahsetmek istiyorum." },
+      { gr: "Ο πατέρας μου λέγεται Γιώργος. Είναι πενήντα χρονών και δουλεύει σε μία τράπεζα. Είναι πολύ καλός άνθρωπος.", pron: "O pateras mu leyete Yorgos. İne peninda hronon ke dulevi se mia trapeza. İne poli kalos anthropos.", tr: "Babamın adı Yorgos. Elli yaşında ve bir bankada çalışıyor. Çok iyi bir insan." },
+      { gr: "Η μητέρα μου λέγεται Ελένη. Είναι σαράντα πέντε χρονών. Είναι δασκάλα σε ένα σχολείο. Μαγειρεύει πολύ νόστιμα!", pron: "İ mitera mu leyete Eleni. İne saranda pende hronon. İne daskala se ena sholio. Mayirevi poli nostima!", tr: "Annemin adı Eleni. Kırk beş yaşında. Bir okulda öğretmen. Çok lezzetli yemek yapıyor!" },
+      { gr: "Έχω έναν αδελφό και μία αδελφή. Ο αδελφός μου λέγεται Νίκος και είναι είκοσι χρονών. Σπουδάζει ιατρική. Η αδελφή μου λέγεται Άννα και είναι δεκαέξι χρονών. Πηγαίνει ακόμα στο σχολείο.", pron: "Eho enan adelfo ke mia adelfi. O adelfos mu leyete Nikos ke ine ikosi hronon. Spudazi iatriki. İ adelfi mu leyete Anna ke ine dekaeksi hronon. Piyeni akoma sto sholio.", tr: "Bir erkek ve bir kız kardeşim var. Erkek kardeşimin adı Nikos ve yirmi yaşında. Tıp okuyor. Kız kardeşimin adı Anna ve on altı yaşında. Hâlâ okula gidiyor." },
+      { gr: "Κάθε Κυριακή τρώμε μαζί το μεσημεριανό. Η γιαγιά και ο παππούς έρχονται στο σπίτι μας. Τρώμε, μιλάμε και γελάμε. Αγαπώ πολύ την οικογένειά μου!", pron: "Kathe Kiriaki trome mazi to mesimeriano. İ yiayia ke o papus erhonde sto spiti mas. Trome, milame ke yelame. Agapo poli tin ikoyenia mu!", tr: "Her pazar birlikte öğle yemeği yiyoruz. Büyükanne ve büyükbaba evimize geliyor. Yiyoruz, konuşuyoruz ve gülüyoruz. Ailemi çok seviyorum!" },
+    ]
+  },
+  {
+    id: 2, title: "Ένα ταξίδι στη Σαντορίνη", titleTr: "Santorini'ye Bir Yolculuk", level: "A2", icon: "🏝️", color: "#00BCD4",
+    paragraphs: [
+      { gr: "Πέρυσι το καλοκαίρι πήγα στη Σαντορίνη με τους φίλους μου. Ήταν το πρώτο μου ταξίδι σε ελληνικό νησί και ήμουν πολύ ενθουσιασμένος.", pron: "Perisi to kalokeri piga sti Sandorini me tus filus mu. İtan to proto mu taksidi se eliniko nisi ke imun poli enthusiasménos.", tr: "Geçen yaz arkadaşlarımla Santorini'ye gittim. Bir Yunan adasına ilk yolculuğumdu ve çok heyecanlıydım." },
+      { gr: "Πήραμε το πλοίο από τον Πειραιά. Το ταξίδι διήρκεσε περίπου πέντε ώρες. Στο πλοίο είδαμε τη θάλασσα, φάγαμε σάντουιτς και ήπιαμε καφέ.", pron: "Pirame to plio apo ton Pirea. To taksidi diirkese peripu pende ores. Sto plio idame ti thalasa, fagame sandwich ke ipiame kafe.", tr: "Pire'den feribota bindik. Yolculuk yaklaşık beş saat sürdü. Feribotta denizi gördük, sandviç yedik ve kahve içtik." },
+      { gr: "Όταν φτάσαμε στη Σαντορίνη, μείναμε άφωνοι. Τα άσπρα σπίτια, οι μπλε θόλοι, η απίστευτη θέα! Ήταν σαν καρτ ποστάλ.", pron: "Otan ftasame sti Sandorini, miname afoni. Ta aspra spitia, i ble tholi, i apistefti thea! İtan san kart postal.", tr: "Santorini'ye vardığımızda ağzımız açık kaldı. Beyaz evler, mavi kubbeler, inanılmaz manzara! Kartpostal gibiydi." },
+      { gr: "Μείναμε σε ένα μικρό ξενοδοχείο στην Οία. Το δωμάτιο είχε θέα στην καλντέρα. Κάθε βράδυ βλέπαμε το ηλιοβασίλεμα από το μπαλκόνι. Ήταν μαγικό!", pron: "Miname se ena mikro ksenodohio stin Oia. To domatio ihe thea stin kaldera. Kathe vradi vlepame to iliovasilema apo to balkoni. İtan mayiko!", tr: "Oia'da küçük bir otelde kaldık. Odanın kalderaya manzarası vardı. Her akşam balkondan gün batımını seyrettik. Büyüleyiciydi!" },
+      { gr: "Φάγαμε φρέσκο ψάρι στις ταβέρνες, κολυμπήσαμε στην Κόκκινη Παραλία και περπατήσαμε στα στενά δρομάκια. Η Σαντορίνη είναι πραγματικά ένας παράδεισος!", pron: "Fagame fresko psari stis tavernes, kolimpisame stin Kokini Paralia ke perpatisame sta stena dromakia. İ Sandorini ine pragmatika enas paradisos!", tr: "Tavernalarda taze balık yedik, Kırmızı Plaj'da yüzdük ve dar sokaklarda yürüdük. Santorini gerçekten bir cennet!" },
+      { gr: "Θα επιστρέψω σίγουρα! Ίσως την επόμενη φορά να πάω και στη Μύκονο ή στην Κρήτη. Η Ελλάδα έχει τόσα πολλά όμορφα νησιά!", pron: "Tha epistrepso sigura! İsos tin epomeni fora na pao ke sti Mikono i stin Kriti. İ Elada ehi tosa pola omorfa nisia!", tr: "Kesinlikle geri döneceğim! Belki bir dahaki sefere Mikonos'a veya Girit'e de giderim. Yunanistan'ın çok güzel adaları var!" },
+    ]
+  },
+  {
+    id: 3, title: "Μια μέρα στη δουλειά", titleTr: "İşte Bir Gün", level: "A2", icon: "💼", color: "#FF9800",
+    paragraphs: [
+      { gr: "Ξυπνάω κάθε μέρα στις επτά το πρωί. Πρώτα πίνω έναν καφέ και τρώω πρωινό. Συνήθως τρώω γιαούρτι με μέλι και φρούτα.", pron: "Ksipnao kathe mera stis epta to proi. Prota pino enan kafe ke troo proino. Sinithos troo yaúrti me meli ke fruta.", tr: "Her gün sabah yedide uyanıyorum. Önce bir kahve içiyorum ve kahvaltı yapıyorum. Genellikle ballı yoğurt ve meyve yiyorum." },
+      { gr: "Στις οκτώ παίρνω το μετρό για τη δουλειά. Δουλεύω σε μία εταιρεία τεχνολογίας στο κέντρο της Αθήνας. Είμαι προγραμματιστής.", pron: "Stis okto perno to metro ya ti dulia. Dulevo se mia eteria tehnoloyias sto kentro tis Athinas. İme programatistis.", tr: "Sekizde işe gitmek için metroya biniyorum. Atina merkezinde bir teknoloji şirketinde çalışıyorum. Programcıyım." },
+      { gr: "Το γραφείο μου είναι στον πέμπτο όροφο. Έχω έναν υπολογιστή, ένα τηλέφωνο και πολλά βιβλία. Οι συνάδελφοί μου είναι πολύ φιλικοί.", pron: "To grafio mu ine ston pempto orofo. Eho enan ipoloyisti, ena tilefono ke pola vivlia. İ sinadelfí mu ine poli filiki.", tr: "Ofisim beşinci katta. Bir bilgisayarım, bir telefonum ve çok kitabım var. İş arkadaşlarım çok arkadaş canlısı." },
+      { gr: "Στις δώδεκα κάνουμε διάλειμμα για μεσημεριανό. Μερικές φορές τρώω στην καντίνα, αλλά συνήθως πηγαίνω σε ένα εστιατόριο κοντά στο γραφείο.", pron: "Stis dodeka kanume dialima ya mesimeriano. Merikes fores troo stin kandina, ala sinithos piyeno se ena estiatorio konda sto grafio.", tr: "On ikide öğle yemeği molası veriyoruz. Bazen kantinde yiyorum ama genellikle ofisin yakınındaki bir restorana gidiyorum." },
+      { gr: "Τελειώνω τη δουλειά στις πέντε. Μετά πηγαίνω στο γυμναστήριο ή περπατάω στο πάρκο. Το βράδυ μαγειρεύω, βλέπω τηλεόραση και διαβάζω ένα βιβλίο.", pron: "Teliono ti dulia stis pende. Meta piyeno sto yimnastirio i perpato sto parko. To vradi mayirevo, vlepo tileorasi ke diavazo ena vivlio.", tr: "İşi beşte bitiriyorum. Sonra spor salonuna gidiyorum veya parkta yürüyorum. Akşam yemek yapıyorum, televizyon izliyorum ve kitap okuyorum." },
+    ]
+  },
+  {
+    id: 4, title: "Ελληνική κουζίνα", titleTr: "Yunan Mutfağı", level: "A2-B1", icon: "🍳", color: "#8BC34A",
+    paragraphs: [
+      { gr: "Η ελληνική κουζίνα είναι μία από τις πιο υγιεινές στον κόσμο. Βασίζεται στη μεσογειακή διατροφή: λαχανικά, ελαιόλαδο, ψάρι, όσπρια και φρέσκα φρούτα.", pron: "İ eliniki kuzina ine mia apo tis pio iyiinés ston kozmo. Vasizete sti mesoyiaki diatrofi: lahanika, eleolado, psari, ospria ke freska fruta.", tr: "Yunan mutfağı dünyanın en sağlıklı mutfaklarından biridir. Akdeniz diyetine dayanır: sebzeler, zeytinyağı, balık, baklagiller ve taze meyveler." },
+      { gr: "Το ελαιόλαδο είναι η βάση της ελληνικής κουζίνας. Οι Έλληνες χρησιμοποιούν ελαιόλαδο σχεδόν σε κάθε φαγητό. Λένε ότι είναι «υγρός χρυσός»!", pron: "To eleolado ine i vasi tis elinikis kuzinas. İ Elines hrisimopiyun eleolado shedon se kathe fayito. Lene oti ine «igros hrisos»!", tr: "Zeytinyağı Yunan mutfağının temelidir. Yunanlılar neredeyse her yemekte zeytinyağı kullanır. «Sıvı altın» olduğunu söylerler!" },
+      { gr: "Μερικά διάσημα ελληνικά φαγητά: η μουσακάς (με μελιτζάνες και κιμά), το σουβλάκι (κρέας στη σχάρα), η χωριάτικη σαλάτα (με φέτα και ελιές) και το τζατζίκι.", pron: "Merika diasima elinika fayita: i musakas (me melidzanes ke kima), to suvlaki (kreas sti shara), i horiatiki salata (me feta ke elies) ke to dzadziki.", tr: "Bazı ünlü Yunan yemekleri: musakka (patlıcan ve kıyma ile), souvlaki (ızgara et), köy salatası (beyaz peynir ve zeytin ile) ve cacık." },
+      { gr: "Οι Έλληνες τρώνε αργά. Το μεσημεριανό είναι συνήθως στις δύο ή τρεις το μεσημέρι. Το βραδινό μπορεί να είναι στις εννιά ή δέκα το βράδυ! Τρώνε αργά γιατί απολαμβάνουν το φαγητό και τη συντροφιά.", pron: "İ Elines trone arga. To mesimeriano ine sinithos stis dio i tris to mesimeri. To vradino bori na ine stis enia i deka to vradi! Trone arga yati apolamvanun to fayito ke ti sindrofia.", tr: "Yunanlılar geç yer. Öğle yemeği genellikle öğleden sonra iki veya üçtedir. Akşam yemeği akşam dokuz veya onda olabilir! Geç yerler çünkü yemeğin ve arkadaşlığın tadını çıkarırlar." },
+      { gr: "Αν πάτε στην Ελλάδα, πρέπει να δοκιμάσετε: φρέσκο ψάρι σε μία ταβέρνα στη θάλασσα, παστίτσιο (σαν λαζάνια), σπανακόπιτα και γλυκά όπως μπακλαβά και γαλακτομπούρεκο.", pron: "An pate stin Elada, prepi na dokimasete: fresko psari se mia taverna sti thalasa, pastitsio (san lazania), spanakopita ke glika opos baklava ke galaktombureko.", tr: "Yunanistan'a giderseniz şunları denemelisiniz: deniz kenarında bir tavernada taze balık, pastitsio (lazanya gibi), ıspanaklı börek ve baklava ve galaktoboureko gibi tatlılar." },
+    ]
+  },
+  {
+    id: 5, title: "Η ιστορία της Αθήνας", titleTr: "Atina'nın Tarihi", level: "B1", icon: "🏛️", color: "#9C27B0",
+    paragraphs: [
+      { gr: "Η Αθήνα είναι μία από τις αρχαιότερες πόλεις του κόσμου. Η ιστορία της ξεκινάει πριν από περίπου 3.400 χρόνια. Πήρε το όνομά της από τη θεά Αθηνά, τη θεά της σοφίας.", pron: "İ Athina ine mia apo tis arheoteres polis tu kozmu. İ istoria tis ksekinai prin apo peripu 3.400 hronia. Pire to onoma tis apo ti thea Athina, ti thea tis sofias.", tr: "Atina dünyanın en eski şehirlerinden biridir. Tarihi yaklaşık 3.400 yıl önce başlar. Adını bilgelik tanrıçası Athena'dan almıştır." },
+      { gr: "Τον 5ο αιώνα π.Χ., η Αθήνα ήταν το κέντρο του δυτικού πολιτισμού. Εκείνη την εποχή έζησαν μεγάλοι φιλόσοφοι όπως ο Σωκράτης, ο Πλάτωνας και ο Αριστοτέλης.", pron: "Ton pempto eona p.H., i Athina itan to kentro tu ditikou politizmu. Ekini tin epohi ezisan megali filosofi opos o Sokratis, o Platonas ke o Aristotelis.", tr: "MÖ 5. yüzyılda Atina, Batı uygarlığının merkeziydi. O dönemde Sokrates, Platon ve Aristoteles gibi büyük filozoflar yaşadı." },
+      { gr: "Η Ακρόπολη χτίστηκε τον 5ο αιώνα π.Χ. Ο Παρθενώνας, ο ναός της Αθηνάς, είναι το πιο διάσημο μνημείο. Κάθε χρόνο εκατομμύρια τουρίστες επισκέπτονται την Ακρόπολη.", pron: "İ Akropoli htistike ton pempto eona p.H. O Parthenonas, o naos tis Athinas, ine to pio diasimo mnimio. Kathe hrono ekatomiria turistes episkeptonde tin Akropoli.", tr: "Akropolis MÖ 5. yüzyılda inşa edildi. Athena'nın tapınağı Parthenon en ünlü anıttır. Her yıl milyonlarca turist Akropolis'i ziyaret eder." },
+      { gr: "Η Αθήνα ήταν επίσης η γενέτειρα της δημοκρατίας. Η λέξη «δημοκρατία» είναι ελληνική: δήμος (λαός) + κράτος (εξουσία) = εξουσία του λαού.", pron: "İ Athina itan episis i yenetira tis dimokratias. İ leksi «dimokratia» ine eliniki: dimos (laos) + kratos (eksusia) = eksusia tu lau.", tr: "Atina aynı zamanda demokrasinin doğum yeriydi. «Demokrasi» kelimesi Yunancadır: demos (halk) + kratos (iktidar) = halkın iktidarı." },
+      { gr: "Σήμερα η Αθήνα είναι μια σύγχρονη ευρωπαϊκή πρωτεύουσα με περίπου 4 εκατομμύρια κατοίκους. Συνδυάζει την αρχαία ιστορία με τη σύγχρονη ζωή. Μπορείτε να δείτε αρχαίους ναούς δίπλα σε μοντέρνα κτίρια!", pron: "Simera i Athina ine mia sighoni evropaiki protevusa me peripu 4 ekatomiria katikus. Sindiazi tin arhea istoria me ti sighoni zoi. Borite na dite arheus naus dipla se moderna ktiria!", tr: "Bugün Atina, yaklaşık 4 milyon nüfuslu modern bir Avrupa başkentidir. Antik tarihi modern yaşamla birleştirir. Antik tapınakları modern binaların yanında görebilirsiniz!" },
+    ]
+  },
+  {
+    id: 6, title: "Τουρκία και Ελλάδα: Γείτονες", titleTr: "Türkiye ve Yunanistan: Komşular", level: "B1", icon: "🤝", color: "#607D8B",
+    paragraphs: [
+      { gr: "Η Τουρκία και η Ελλάδα είναι γείτονες με μακρά κοινή ιστορία. Οι δύο χώρες μοιράζονται το Αιγαίο Πέλαγος και έχουν πολλά κοινά στοιχεία στον πολιτισμό τους.", pron: "İ Turkia ke i Elada ine yitones me makra kini istoria. İ dio hores mirazonde to Egeo Pelagos ke ehun pola kina stichia ston politizmo tus.", tr: "Türkiye ve Yunanistan uzun bir ortak tarihe sahip komşulardır. İki ülke Ege Denizi'ni paylaşır ve kültürlerinde birçok ortak unsur vardır." },
+      { gr: "Η κουζίνα είναι πολύ παρόμοια. Το γιαούρτι, οι μεζέδες, το μπακλαβά, ο καφές, η ρακί — αυτά υπάρχουν και στις δύο χώρες. Ακόμα και τα ονόματα είναι ίδια!", pron: "İ kuzina ine poli paromia. To yaúrti, i mezedes, to baklava, o kafes, i raki — afta iparhun ke stis dio hores. Akoma ke ta onomata ine idia!", tr: "Mutfaklar çok benzer. Yoğurt, mezeler, baklava, kahve, rakı — bunlar her iki ülkede de var. İsimleri bile aynı!" },
+      { gr: "Υπάρχουν πολλές κοινές λέξεις στα ελληνικά και τα τουρκικά. Για παράδειγμα: μπακάλης (bakkal), μπαμπάς (baba), μπαλκόνι (balkon), παντόφλα (panton), καρπούζι (karpuz).", pron: "İparhun poles kines leksis sta elinika ke ta turkika. Ya paradigma: bakalis (bakkal), babas (baba), balkoni (balkon), pandofla (panton), karpuzi (karpuz).", tr: "Yunanca ve Türkçe'de birçok ortak kelime var. Örneğin: bakalis (bakkal), babas (baba), balkoni (balkon), pandofla (terlik), karpuzi (karpuz)." },
+      { gr: "Και οι δύο λαοί είναι γνωστοί για τη φιλοξενία τους. Τόσο στην Τουρκία όσο και στην Ελλάδα, ο ξένος είναι ιερός. Θα σου προσφέρουν καφέ, θα σε καλέσουν για φαγητό, θα σε βοηθήσουν χωρίς δεύτερη σκέψη.", pron: "Ke i dio lai ine gnosti ya ti filoksenia tus. Toso stin Turkia oso ke stin Elada, o ksenos ine ieros. Tha su prosferun kafe, tha se kalesun ya fayito, tha se voithisun horis defteri skepsi.", tr: "Her iki halk da misafirperverliğiyle tanınır. Hem Türkiye'de hem Yunanistan'da, misafir kutsaldır. Sana kahve ikram edecekler, yemeğe davet edecekler, düşünmeden yardım edecekler." },
+      { gr: "Η μουσική επίσης έχει κοινές ρίζες. Το ρεμπέτικο, η παραδοσιακή ελληνική μουσική, μοιάζει πολύ με την τουρκική μουσική. Τα ίδια όργανα, οι ίδιοι ρυθμοί, η ίδια συναισθηματική ένταση.", pron: "İ musiki episis ehi kines rizes. To rebetiko, i paradosiaki eliniki musiki, miazi poli me tin turkiki musiki. Ta idia organa, i idii rithmi, i idia sinesthimatiki entasi.", tr: "Müzik de ortak köklere sahip. Geleneksel Yunan müziği olan rebetiko, Türk müziğine çok benzer. Aynı enstrümanlar, aynı ritimler, aynı duygusal yoğunluk." },
+      { gr: "Παρά τις διαφορές του παρελθόντος, σήμερα πολλοί Τούρκοι και Έλληνες είναι φίλοι. Ταξιδεύουν στις χώρες ο ένας του άλλου, μαθαίνουν τη γλώσσα και απολαμβάνουν τον πολιτισμό. Γιατί στο τέλος, είμαστε περισσότερα αυτά που μας ενώνουν από αυτά που μας χωρίζουν.", pron: "Para tis diafores tu parelthondos, simera poli Turki ke Elines ine fili. Taksidevun stis hores o enas tu alu, mathenun ti glosa ke apolamvanun ton politizmo. Yati sto telos, imaste perissotera afta pu mas enonun apo afta pu mas horizun.", tr: "Geçmişin farklılıklarına rağmen, bugün birçok Türk ve Yunan arkadaş. Birbirlerinin ülkelerine seyahat ediyorlar, dili öğreniyorlar ve kültürün tadını çıkarıyorlar. Çünkü sonunda, bizi ayıranlardan çok birleştirenler var." },
+    ]
+  },
+];
+
+const WEEKS = [
+  {
+    id: 1, title: "Merhaba Yunanistan!", subtitle: "Alfabe, Selamlaşma & Temel İfadeler", icon: "🇬🇷", color: "#0D5EAF",
+    vocabulary: [
+      { gr: "Γεια σου", pron: "Ya su", tr: "Merhaba (tekil)", category: "selamlasma" },
+      { gr: "Γεια σας", pron: "Ya sas", tr: "Merhaba (çoğul/resmi)", category: "selamlasma" },
+      { gr: "Καλημέρα", pron: "Kalimera", tr: "Günaydın", category: "selamlasma" },
+      { gr: "Καλησπέρα", pron: "Kalispera", tr: "İyi akşamlar", category: "selamlasma" },
+      { gr: "Καληνύχτα", pron: "Kalinikta", tr: "İyi geceler", category: "selamlasma" },
+      { gr: "Ευχαριστώ", pron: "Efharisto", tr: "Teşekkür ederim", category: "temel" },
+      { gr: "Παρακαλώ", pron: "Parakalo", tr: "Rica ederim / Lütfen", category: "temel" },
+      { gr: "Ναι", pron: "Ne", tr: "Evet", category: "temel" },
+      { gr: "Όχι", pron: "Ohi", tr: "Hayır", category: "temel" },
+      { gr: "Συγγνώμη", pron: "Signomi", tr: "Affedersiniz / Özür dilerim", category: "temel" },
+      { gr: "Με λένε...", pron: "Me lene...", tr: "Benim adım...", category: "tanisma" },
+      { gr: "Πώς σε λένε;", pron: "Pos se lene?", tr: "Adın ne?", category: "tanisma" },
+      { gr: "Τι κάνεις;", pron: "Ti kanis?", tr: "Nasılsın?", category: "tanisma" },
+      { gr: "Καλά, ευχαριστώ", pron: "Kala, efharisto", tr: "İyiyim, teşekkürler", category: "tanisma" },
+      { gr: "Δεν καταλαβαίνω", pron: "Den katalaveno", tr: "Anlamıyorum", category: "temel" },
+      { gr: "Μιλάτε τουρκικά;", pron: "Milate turkika?", tr: "Türkçe konuşuyor musunuz?", category: "temel" },
+      { gr: "Μιλάω λίγο ελληνικά", pron: "Milao ligo elinika", tr: "Biraz Yunanca konuşuyorum", category: "temel" },
+    ],
+    numbers: [
+      { gr: "ένα", pron: "ena", tr: "1" }, { gr: "δύο", pron: "dio", tr: "2" }, { gr: "τρία", pron: "tria", tr: "3" },
+      { gr: "τέσσερα", pron: "tesera", tr: "4" }, { gr: "πέντε", pron: "pende", tr: "5" }, { gr: "έξι", pron: "eksi", tr: "6" },
+      { gr: "εφτά", pron: "efta", tr: "7" }, { gr: "οκτώ", pron: "okto", tr: "8" }, { gr: "εννιά", pron: "enia", tr: "9" }, { gr: "δέκα", pron: "deka", tr: "10" },
+    ],
+    dialogues: [
+      { title: "Tanışma - İlk Karşılaşma", setting: "Atina'da bir kafede iki kişi tanışıyor", lines: [
+        { speaker: "A", gr: "Γεια σου!", pron: "Ya su!", tr: "Merhaba!" },
+        { speaker: "B", gr: "Γεια σου! Τι κάνεις;", pron: "Ya su! Ti kanis?", tr: "Merhaba! Nasılsın?" },
+        { speaker: "A", gr: "Καλά, ευχαριστώ. Εσύ;", pron: "Kala, efharisto. Esi?", tr: "İyiyim, teşekkürler. Sen?" },
+        { speaker: "B", gr: "Πολύ καλά! Πώς σε λένε;", pron: "Poli kala! Pos se lene?", tr: "Çok iyiyim! Adın ne?" },
+        { speaker: "A", gr: "Με λένε Αλί. Εσένα;", pron: "Me lene Ali. Esena?", tr: "Benim adım Ali. Seninki?" },
+        { speaker: "B", gr: "Με λένε Μαρία. Χαίρω πολύ!", pron: "Me lene Maria. Hero poli!", tr: "Benim adım Maria. Memnun oldum!" },
+      ]},
+    ],
+    reading: { title: "Ο Αλί στην Αθήνα", titleTr: "Ali Atina'da", level: "A1", paragraphs: [
+      { gr: "Γεια σας! Με λένε Αλί. Είμαι από την Τουρκία. Τώρα είμαι στην Αθήνα.", pron: "Ya sas! Me lene Ali. İme apo tin Turkia. Tora ime stin Athina.", tr: "Merhaba! Benim adım Ali. Türkiye'denim. Şimdi Atina'dayım." },
+      { gr: "Η Αθήνα είναι πολύ ωραία. Μιλάω λίγο ελληνικά. Οι άνθρωποι είναι πολύ καλοί.", pron: "İ Athina ine poli orea. Milao ligo elinika. İ anthropi ine poli kali.", tr: "Atina çok güzel. Biraz Yunanca konuşuyorum. İnsanlar çok iyi." },
+    ]},
+    grammar: [ "Yunanca'da «Ναι» (Ne) = Evet, «Όχι» (Ohi) = Hayır.", "«Γεια σου» tekil/samimi, «Γεια σας» çoğul/resmi.", "«Είμαι» = (Ben) ...im/...yım" ],
+  },
+  {
+    id: 2, title: "Restoranda", subtitle: "Yemek Sipariş Etme & Hesap İsteme", icon: "🍽️", color: "#D4451A",
+    vocabulary: [
+      { gr: "Το εστιατόριο", pron: "To estiatório", tr: "Restoran", category: "yemek" },
+      { gr: "Η ταβέρνα", pron: "İ taverna", tr: "Taverna", category: "yemek" },
+      { gr: "Ο λογαριασμός", pron: "O logariasmos", tr: "Hesap", category: "yemek" },
+      { gr: "Το νερό", pron: "To neró", tr: "Su", category: "icecek" },
+      { gr: "Το κρασί", pron: "To krasí", tr: "Şarap", category: "icecek" },
+      { gr: "Ο καφές", pron: "O kafés", tr: "Kahve", category: "icecek" },
+      { gr: "Το ψάρι", pron: "To psári", tr: "Balık", category: "yiyecek" },
+      { gr: "Το κρέας", pron: "To kréas", tr: "Et", category: "yiyecek" },
+      { gr: "Θα ήθελα...", pron: "Tha íthela...", tr: "...istiyorum", category: "kalip" },
+      { gr: "Τον λογαριασμό, παρακαλώ", pron: "Ton logariasmo, parakalo", tr: "Hesap, lütfen", category: "kalip" },
+    ],
+    numbers: [
+      { gr: "έντεκα", pron: "endeka", tr: "11" }, { gr: "δώδεκα", pron: "dodeka", tr: "12" },
+      { gr: "είκοσι", pron: "ikosi", tr: "20" }, { gr: "πενήντα", pron: "peninda", tr: "50" }, { gr: "εκατό", pron: "ekato", tr: "100" },
+    ],
+    dialogues: [
+      { title: "Taverna'da Akşam Yemeği", setting: "Santorini'de bir tavernada", lines: [
+        { speaker: "Garson", gr: "Καλησπέρα! Πόσα άτομα;", pron: "Kalispera! Posa atoma?", tr: "İyi akşamlar! Kaç kişisiniz?" },
+        { speaker: "Siz", gr: "Δύο άτομα, παρακαλώ.", pron: "Dio atoma, parakalo.", tr: "İki kişiyiz, lütfen." },
+        { speaker: "Siz", gr: "Τον λογαριασμό, παρακαλώ.", pron: "Ton logariasmo, parakalo.", tr: "Hesap, lütfen." },
+      ]},
+    ],
+    reading: { title: "Φαγητό στην Ελλάδα", titleTr: "Yunanistan'da Yemek", level: "A1-A2", paragraphs: [
+      { gr: "Το φαγητό στην Ελλάδα είναι πολύ νόστιμο. Οι Έλληνες τρώνε πολύ ψάρι, κρέας και σαλάτες.", pron: "To fayito stin Elada ine poli nostimo.", tr: "Yunanistan'da yemek çok lezzetli." },
+    ]},
+    grammar: [ "Artikeller: ο (erkek), η (dişi), το (nötr)", "«Θα ήθελα» = isterim (kibar)" ],
+  },
+  {
+    id: 3, title: "Otelde", subtitle: "Rezervasyon & Check-in", icon: "🏨", color: "#1A7A5C",
+    vocabulary: [
+      { gr: "Το ξενοδοχείο", pron: "To ksenodohío", tr: "Otel", category: "otel" },
+      { gr: "Το δωμάτιο", pron: "To domátio", tr: "Oda", category: "otel" },
+      { gr: "Η κράτηση", pron: "İ krátisi", tr: "Rezervasyon", category: "otel" },
+      { gr: "Το κλειδί", pron: "To klidí", tr: "Anahtar", category: "otel" },
+      { gr: "Έχετε...;", pron: "Éhete...?", tr: "...var mı?", category: "kalip" },
+    ],
+    dialogues: [
+      { title: "Otel Check-in", setting: "Mikonos'ta bir otelde", lines: [
+        { speaker: "Siz", gr: "Καλησπέρα! Έχω κράτηση.", pron: "Kalispera! Eho kratisi.", tr: "İyi akşamlar! Rezervasyonum var." },
+        { speaker: "Resepsiyon", gr: "Ορίστε το κλειδί σας.", pron: "Oriste to klidi sas.", tr: "Anahtarınız buyurun." },
+      ]},
+    ],
+    reading: { title: "Το ξενοδοχείο μου", titleTr: "Otelim", level: "A2", paragraphs: [
+      { gr: "Μένω σε ένα μικρό ξενοδοχείο στη Σαντορίνη.", pron: "Meno se ena mikro ksenodohio.", tr: "Santorini'de küçük bir otelde kalıyorum." },
+    ]},
+    grammar: [ "«Έχω» = var (bende)", "«Υπάρχει» = Var (genel)" ],
+  },
+  {
+    id: 4, title: "Şehirde Dolaşmak", subtitle: "Ulaşım & Alışveriş", icon: "🚌", color: "#7B2D8B",
+    vocabulary: [
+      { gr: "Το μετρό", pron: "To metró", tr: "Metro", category: "ulasim" },
+      { gr: "Το ταξί", pron: "To taksí", tr: "Taksi", category: "ulasim" },
+      { gr: "Ευθεία", pron: "Efthía", tr: "Düz", category: "ulasim" },
+      { gr: "Αριστερά", pron: "Aristerá", tr: "Sol", category: "ulasim" },
+      { gr: "Δεξιά", pron: "Deksiá", tr: "Sağ", category: "ulasim" },
+      { gr: "Πόσο κοστίζει;", pron: "Póso kostízi?", tr: "Ne kadar?", category: "alisveris" },
+    ],
+    dialogues: [
+      { title: "Metro ile Akropolis'e", setting: "Atina metrosunda", lines: [
+        { speaker: "Siz", gr: "Πώς πάω στην Ακρόπολη;", pron: "Pos pao stin Akropoli?", tr: "Akropolis'e nasıl giderim?" },
+        { speaker: "Kişi", gr: "Πάρτε το μετρό, γραμμή δύο.", pron: "Parte to metro, grami dio.", tr: "Metroyu alın, ikinci hat." },
+      ]},
+    ],
+    reading: { title: "Μια μέρα στην Αθήνα", titleTr: "Atina'da Bir Gün", level: "A2", paragraphs: [
+      { gr: "Σήμερα πήρα το μετρό για την Ακρόπολη.", pron: "Simera pira to metro ya tin Akropoli.", tr: "Bugün Akropolis için metroyu aldım." },
+    ]},
+    grammar: [ "«Πώς πάω;» = Nasıl giderim?", "Yön: ευθεία, αριστερά, δεξιά" ],
+  },
+  {
+    id: 5, title: "Günlük Hayat", subtitle: "Plaj & Acil Durumlar", icon: "🏖️", color: "#D4A017",
+    vocabulary: [
+      { gr: "Η παραλία", pron: "İ paralía", tr: "Plaj", category: "hava" },
+      { gr: "Κάνει ζέστη", pron: "Káni zésti", tr: "Hava sıcak", category: "hava" },
+      { gr: "Βοήθεια!", pron: "Voíthia!", tr: "Yardım!", category: "saglik" },
+      { gr: "Γιατρός", pron: "Yatrós", tr: "Doktor", category: "saglik" },
+      { gr: "Φαρμακείο", pron: "Farmakío", tr: "Eczane", category: "saglik" },
+    ],
+    dialogues: [
+      { title: "Eczanede", setting: "Eczaneye gidiyorsunuz", lines: [
+        { speaker: "Siz", gr: "Δεν αισθάνομαι καλά.", pron: "Den esthánome kala.", tr: "İyi hissetmiyorum." },
+        { speaker: "Eczacı", gr: "Περαστικά!", pron: "Perastiká!", tr: "Geçmiş olsun!" },
+      ]},
+    ],
+    reading: { title: "Καλοκαίρι στην Κρήτη", titleTr: "Girit'te Yaz", level: "A2-B1", paragraphs: [
+      { gr: "Το καλοκαίρι στην Κρήτη είναι μαγικό.", pron: "To kalokeri stin Kriti ine mayiko.", tr: "Girit'te yaz büyüleyici." },
+    ]},
+    grammar: [ "«Κάνει ζέστη/κρύο» = Sıcak/soğuk", "«Περαστικά!» = Geçmiş olsun!" ],
+  },
+  {
+    id: 6, title: "İleri Seviye", subtitle: "Sohbet & Kültür", icon: "🎓", color: "#2C3E50",
+    vocabulary: [
+      { gr: "Μου αρέσει", pron: "Mu arési", tr: "Hoşuma gidiyor", category: "kultur" },
+      { gr: "Συμφωνώ", pron: "Simfonó", tr: "Katılıyorum", category: "kultur" },
+      { gr: "Στην υγειά μας!", pron: "Stin iyá mas!", tr: "Sağlığımıza!", category: "kultur" },
+      { gr: "Καλό ταξίδι!", pron: "Kaló taksídi!", tr: "İyi yolculuklar!", category: "kultur" },
+    ],
+    dialogues: [
+      { title: "Yerel Biriyle Sohbet", setting: "Bir adada akşam yürüyüşü", lines: [
+        { speaker: "Yannis", gr: "Πώς σου φαίνεται η Ελλάδα;", pron: "Pos su fenete i Elada?", tr: "Yunanistan sana nasıl geliyor?" },
+        { speaker: "Siz", gr: "Μου αρέσει πολύ!", pron: "Mu aresi poli!", tr: "Çok hoşuma gidiyor!" },
+      ]},
+    ],
+    reading: { title: "Γείτονες και φίλοι", titleTr: "Komşular ve Dostlar", level: "B1", paragraphs: [
+      { gr: "Η Ελλάδα και η Τουρκία είναι γείτονες.", pron: "İ Elada ke i Turkia ine yitones.", tr: "Yunanistan ve Türkiye komşudur." },
+    ]},
+    grammar: [ "«Μου αρέσει» = Hoşuma gidiyor", "«Στην υγειά μας!» = Sağlığımıza!" ],
+  },
+];
+
+const CATEGORIES = { selamlasma: "Selamlaşma", temel: "Temel", tanisma: "Tanışma", yemek: "Yemek", icecek: "İçecekler", yiyecek: "Yiyecekler", kalip: "Kalıplar", otel: "Otel", ulasim: "Ulaşım", alisveris: "Alışveriş", hava: "Hava", saglik: "Sağlık", kultur: "Kültür" };
+
+function App() {
+  const [view, setView] = useState("home");
+  const [activeWeek, setActiveWeek] = useState(null);
+  const [activeArticle, setActiveArticle] = useState(null);
+  const [activeTab, setActiveTab] = useState("vocab");
+  const [showTr, setShowTr] = useState({});
+  const [showPron, setShowPron] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [flashcardMode, setFlashcardMode] = useState(false);
+  const [currentCard, setCurrentCard] = useState(0);
+  const [showAnswer, setShowAnswer] = useState(false);
+
+  const week = WEEKS.find((w) => w.id === activeWeek);
+  const article = ARTICLES.find((a) => a.id === activeArticle);
+  const toggleTr = (key) => setShowTr((prev) => ({ ...prev, [key]: !prev[key] }));
+
+  const allVocabulary = useMemo(() => {
+    const vocab = [];
+    WEEKS.forEach(w => {
+      w.vocabulary.forEach(v => vocab.push({ ...v, weekId: w.id }));
+      if (w.numbers) w.numbers.forEach(n => vocab.push({ ...n, category: "sayilar", weekId: w.id }));
+    });
+    return vocab;
+  }, []);
+
+  const filteredVocabulary = useMemo(() => {
+    return allVocabulary.filter(v => {
+      const matchesSearch = searchTerm === "" || v.gr.toLowerCase().includes(searchTerm.toLowerCase()) || v.tr.toLowerCase().includes(searchTerm.toLowerCase()) || v.pron.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesCategory = selectedCategory === "all" || v.category === selectedCategory;
+      return matchesSearch && matchesCategory;
+    });
+  }, [allVocabulary, searchTerm, selectedCategory]);
+
+  const categories = useMemo(() => { const cats = new Set(); allVocabulary.forEach(v => v.category && cats.add(v.category)); return Array.from(cats); }, [allVocabulary]);
+
+  const nextCard = () => { setShowAnswer(false); setCurrentCard((prev) => (prev + 1) % filteredVocabulary.length); };
+  const prevCard = () => { setShowAnswer(false); setCurrentCard((prev) => (prev - 1 + filteredVocabulary.length) % filteredVocabulary.length); };
+
+  // HOME VIEW
+  if (view === "home") {
+    return (
+      <div style={{ fontFamily: "'Crimson Pro', Georgia, serif", background: "linear-gradient(160deg, #0D3B66 0%, #0a2540 50%, #051b30 100%)", minHeight: "100vh", color: "#fff", padding: 0 }}>
+        <div style={{ maxWidth: 760, margin: "0 auto", padding: "28px 18px" }}>
+          <div style={{ textAlign: "center", marginBottom: 30 }}>
+            <div style={{ fontSize: 52, marginBottom: 4 }}>🇬🇷</div>
+            <h1 style={{ fontSize: 28, fontWeight: 700, margin: "0 0 6px" }}>Yunanca Öğreniyorum</h1>
+            <p style={{ fontSize: 14, opacity: 0.75 }}>6 Haftalık Pratik Seyahat Yunancası</p>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 20 }}>
+            <button onClick={() => setView("alphabet")} style={{ padding: "14px", background: "linear-gradient(135deg, #9C27B0, #7B1FA2)", border: "none", borderRadius: 12, cursor: "pointer", fontSize: 14, fontWeight: 700, color: "#fff" }}>
+              🔤 Alfabe
+            </button>
+            <button onClick={() => setView("dictionary")} style={{ padding: "14px", background: "linear-gradient(135deg, #FFD54F, #FFA000)", border: "none", borderRadius: 12, cursor: "pointer", fontSize: 14, fontWeight: 700, color: "#333" }}>
+              📚 Sözlük
+            </button>
+          </div>
+
+          <button onClick={() => setView("library")} style={{ width: "100%", padding: "16px", marginBottom: 20, background: "linear-gradient(135deg, #4CAF50, #388E3C)", border: "none", borderRadius: 12, cursor: "pointer", fontSize: 15, fontWeight: 700, color: "#fff" }}>
+            📖 Okuma Kütüphanesi ({ARTICLES.length} makale)
+          </button>
+
+          <h2 style={{ fontSize: 15, margin: "0 0 12px", fontWeight: 600, textAlign: "center" }}>Haftalık Dersler</h2>
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            {WEEKS.map((w) => (
+              <button key={w.id} onClick={() => { setActiveWeek(w.id); setView("week"); setActiveTab("vocab"); setShowTr({}); }} style={{ display: "flex", alignItems: "center", gap: 12, padding: "14px 16px", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 10, cursor: "pointer", textAlign: "left", color: "#fff", borderLeft: `4px solid ${w.color}` }}>
+                <span style={{ fontSize: 24 }}>{w.icon}</span>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 10, opacity: 0.45, textTransform: "uppercase" }}>{w.id}. Hafta</div>
+                  <div style={{ fontSize: 15, fontWeight: 700 }}>{w.title}</div>
+                  <div style={{ fontSize: 11, opacity: 0.6 }}>{w.subtitle}</div>
+                </div>
+                <span style={{ opacity: 0.3 }}>→</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ALPHABET VIEW
+  if (view === "alphabet") {
+    return (
+      <div style={{ fontFamily: "'Crimson Pro', Georgia, serif", background: "#081e36", minHeight: "100vh", color: "#e0dbd2" }}>
+        <div style={{ background: "linear-gradient(135deg, #9C27B0, #7B1FA2)", padding: "14px 18px", display: "flex", alignItems: "center", gap: 12, position: "sticky", top: 0, zIndex: 10 }}>
+          <button onClick={() => setView("home")} style={{ background: "rgba(255,255,255,0.2)", border: "none", color: "#fff", borderRadius: 8, padding: "6px 14px", cursor: "pointer", fontSize: 13, fontWeight: 600 }}>← Geri</button>
+          <span style={{ fontSize: 22 }}>🔤</span>
+          <div><div style={{ fontSize: 16, fontWeight: 700, color: "#fff" }}>Yunan Alfabesi</div><div style={{ fontSize: 11, opacity: 0.8, color: "#fff" }}>24 harf</div></div>
+        </div>
+        <div style={{ maxWidth: 760, margin: "0 auto", padding: "18px 14px 40px" }}>
+          <div style={{ background: "rgba(255,255,255,0.05)", borderRadius: 12, padding: "16px", marginBottom: 20 }}>
+            <h3 style={{ margin: "0 0 10px", fontSize: 14 }}>Önemli Notlar:</h3>
+            <ul style={{ margin: 0, paddingLeft: 20, fontSize: 13, lineHeight: 1.8, opacity: 0.8 }}>
+              <li><strong>Σ/σ/ς</strong> — Sigma kelime sonunda <strong>ς</strong> olur</li>
+              <li><strong>Γ/γ</strong> — "e, i" önünde "y" gibi, diğer yerlerde "g" gibi</li>
+              <li><strong>Η, Ι, Υ</strong> — Hepsi "i" sesi verir</li>
+              <li><strong>Ο, Ω</strong> — İkisi de "o" sesi verir</li>
+            </ul>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: 10 }}>
+            {ALPHABET.map((letter, i) => (
+              <div key={i} onClick={() => toggleTr(`alph${i}`)} style={{ background: "rgba(255,255,255,0.04)", borderRadius: 10, padding: "14px", cursor: "pointer", border: showTr[`alph${i}`] ? "2px solid #9C27B0" : "2px solid transparent", transition: "all 0.2s" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                  <span style={{ fontSize: 32, fontWeight: 700, color: "#9C27B0" }}>{letter.upper}</span>
+                  <span style={{ fontSize: 32, fontWeight: 700, opacity: 0.6 }}>{letter.lower}</span>
+                </div>
+                <div style={{ fontSize: 14, fontWeight: 600 }}>{letter.name}</div>
+                <div style={{ fontSize: 12, opacity: 0.5 }}>Okunuş: <strong>{letter.pron}</strong></div>
+                {showTr[`alph${i}`] && <div style={{ fontSize: 11, color: "#FFD54F", marginTop: 8, paddingTop: 8, borderTop: "1px solid rgba(255,255,255,0.1)" }}>{letter.example}</div>}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // LIBRARY VIEW
+  if (view === "library") {
+    return (
+      <div style={{ fontFamily: "'Crimson Pro', Georgia, serif", background: "#081e36", minHeight: "100vh", color: "#e0dbd2" }}>
+        <div style={{ background: "linear-gradient(135deg, #4CAF50, #388E3C)", padding: "14px 18px", display: "flex", alignItems: "center", gap: 12, position: "sticky", top: 0, zIndex: 10 }}>
+          <button onClick={() => setView("home")} style={{ background: "rgba(255,255,255,0.2)", border: "none", color: "#fff", borderRadius: 8, padding: "6px 14px", cursor: "pointer", fontSize: 13, fontWeight: 600 }}>← Geri</button>
+          <span style={{ fontSize: 22 }}>📖</span>
+          <div><div style={{ fontSize: 16, fontWeight: 700, color: "#fff" }}>Okuma Kütüphanesi</div><div style={{ fontSize: 11, opacity: 0.8, color: "#fff" }}>{ARTICLES.length} makale</div></div>
+        </div>
+        <div style={{ maxWidth: 760, margin: "0 auto", padding: "18px 14px 40px" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            {ARTICLES.map((a) => (
+              <button key={a.id} onClick={() => { setActiveArticle(a.id); setView("article"); setShowTr({}); }} style={{ display: "flex", alignItems: "center", gap: 14, padding: "16px", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, cursor: "pointer", textAlign: "left", color: "#fff", borderLeft: `4px solid ${a.color}` }}>
+                <span style={{ fontSize: 32 }}>{a.icon}</span>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 10, opacity: 0.5, textTransform: "uppercase", marginBottom: 2 }}>Seviye: {a.level}</div>
+                  <div style={{ fontSize: 16, fontWeight: 700 }}>{a.title}</div>
+                  <div style={{ fontSize: 13, opacity: 0.7 }}>{a.titleTr}</div>
+                  <div style={{ fontSize: 11, opacity: 0.4, marginTop: 4 }}>{a.paragraphs.length} paragraf</div>
+                </div>
+                <span style={{ opacity: 0.3, fontSize: 18 }}>→</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ARTICLE VIEW
+  if (view === "article" && article) {
+    return (
+      <div style={{ fontFamily: "'Crimson Pro', Georgia, serif", background: "#081e36", minHeight: "100vh", color: "#e0dbd2" }}>
+        <div style={{ background: `linear-gradient(135deg, ${article.color}, ${article.color}cc)`, padding: "14px 18px", display: "flex", alignItems: "center", gap: 12, position: "sticky", top: 0, zIndex: 10 }}>
+          <button onClick={() => setView("library")} style={{ background: "rgba(255,255,255,0.2)", border: "none", color: "#fff", borderRadius: 8, padding: "6px 14px", cursor: "pointer", fontSize: 13, fontWeight: 600 }}>← Geri</button>
+          <span style={{ fontSize: 22 }}>{article.icon}</span>
+          <div><div style={{ fontSize: 10, opacity: 0.7, textTransform: "uppercase" }}>{article.level}</div><div style={{ fontSize: 15, fontWeight: 700, color: "#fff" }}>{article.titleTr}</div></div>
+        </div>
+        <div style={{ maxWidth: 760, margin: "0 auto", padding: "18px 14px 40px" }}>
+          <div style={{ background: "rgba(255,255,255,0.03)", borderRadius: 12, padding: "16px 18px", marginBottom: 16 }}>
+            <div style={{ fontSize: 22, fontWeight: 700, marginBottom: 4 }}>{article.title}</div>
+            <div style={{ fontSize: 14, opacity: 0.6 }}>{article.titleTr}</div>
+          </div>
+          <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, opacity: 0.6, marginBottom: 16, cursor: "pointer" }}>
+            <input type="checkbox" checked={showPron} onChange={(e) => setShowPron(e.target.checked)} /> Okunuş göster
+          </label>
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            {article.paragraphs.map((p, pi) => (
+              <div key={pi} onClick={() => toggleTr(`art${pi}`)} style={{ padding: "14px 16px", background: "rgba(255,255,255,0.03)", borderRadius: 10, cursor: "pointer", borderLeft: `3px solid ${article.color}`, transition: "all 0.2s" }}>
+                <div style={{ fontSize: 16, fontWeight: 600, lineHeight: 1.8 }}>{p.gr}</div>
+                {showPron && <div style={{ fontSize: 13, opacity: 0.4, fontStyle: "italic", lineHeight: 1.7, marginTop: 6 }}>{p.pron}</div>}
+                {showTr[`art${pi}`] && <div style={{ fontSize: 14, color: "#FFD54F", marginTop: 10, paddingTop: 10, borderTop: "1px solid rgba(255,255,255,0.1)", lineHeight: 1.7 }}>🇹🇷 {p.tr}</div>}
+              </div>
+            ))}
+          </div>
+          <div style={{ textAlign: "center", marginTop: 16, fontSize: 11, opacity: 0.4 }}>Çeviri için paragraflara tıklayın</div>
+        </div>
+      </div>
+    );
+  }
+
+  // DICTIONARY VIEW
+  if (view === "dictionary") {
+    const currentVocab = filteredVocabulary[currentCard];
+    return (
+      <div style={{ fontFamily: "'Crimson Pro', Georgia, serif", background: "#081e36", minHeight: "100vh", color: "#e0dbd2" }}>
+        <div style={{ background: "linear-gradient(135deg, #FFD54F, #FFA000)", padding: "14px 18px", display: "flex", alignItems: "center", gap: 12, position: "sticky", top: 0, zIndex: 10 }}>
+          <button onClick={() => { setView("home"); setFlashcardMode(false); }} style={{ background: "rgba(0,0,0,0.2)", border: "none", color: "#333", borderRadius: 8, padding: "6px 14px", cursor: "pointer", fontSize: 13, fontWeight: 600 }}>← Geri</button>
+          <span style={{ fontSize: 22 }}>📚</span>
+          <div style={{ flex: 1 }}><div style={{ fontSize: 16, fontWeight: 700, color: "#333" }}>Sözlük</div><div style={{ fontSize: 11, color: "#555" }}>{filteredVocabulary.length} kelime</div></div>
+          <button onClick={() => { setFlashcardMode(!flashcardMode); setCurrentCard(0); setShowAnswer(false); }} style={{ background: flashcardMode ? "#333" : "rgba(0,0,0,0.2)", border: "none", color: flashcardMode ? "#FFD54F" : "#333", borderRadius: 8, padding: "6px 14px", cursor: "pointer", fontSize: 13, fontWeight: 600 }}>{flashcardMode ? "📋 Liste" : "🎴 Flashcard"}</button>
+        </div>
+        <div style={{ maxWidth: 760, margin: "0 auto", padding: "18px 14px 40px" }}>
+          <input type="text" placeholder="Ara..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} style={{ width: "100%", padding: "12px 16px", borderRadius: 10, border: "1px solid rgba(255,255,255,0.1)", background: "rgba(255,255,255,0.05)", color: "#fff", fontSize: 14, marginBottom: 10 }} />
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 16 }}>
+            <button onClick={() => setSelectedCategory("all")} style={{ padding: "6px 12px", borderRadius: 20, border: "none", background: selectedCategory === "all" ? "#FFD54F" : "rgba(255,255,255,0.1)", color: selectedCategory === "all" ? "#333" : "#fff", fontSize: 12, cursor: "pointer" }}>Tümü</button>
+            {categories.map(cat => (<button key={cat} onClick={() => setSelectedCategory(cat)} style={{ padding: "6px 12px", borderRadius: 20, border: "none", background: selectedCategory === cat ? "#FFD54F" : "rgba(255,255,255,0.1)", color: selectedCategory === cat ? "#333" : "#fff", fontSize: 12, cursor: "pointer" }}>{CATEGORIES[cat] || cat}</button>))}
+          </div>
+          {flashcardMode && filteredVocabulary.length > 0 ? (
+            <div style={{ textAlign: "center" }}>
+              <div style={{ fontSize: 12, opacity: 0.5, marginBottom: 16 }}>{currentCard + 1} / {filteredVocabulary.length}</div>
+              <div onClick={() => setShowAnswer(!showAnswer)} style={{ background: "rgba(255,255,255,0.05)", borderRadius: 16, padding: "40px 30px", minHeight: 200, display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", cursor: "pointer", border: "2px solid rgba(255,255,255,0.1)" }}>
+                <div style={{ fontSize: 32, fontWeight: 700, marginBottom: 10 }}>{currentVocab.gr}</div>
+                <div style={{ fontSize: 14, opacity: 0.5, fontStyle: "italic", marginBottom: 20 }}>{currentVocab.pron}</div>
+                {showAnswer ? <div style={{ fontSize: 20, color: "#FFD54F", fontWeight: 600 }}>🇹🇷 {currentVocab.tr}</div> : <div style={{ fontSize: 14, opacity: 0.3 }}>Cevabı görmek için tıkla</div>}
+              </div>
+              <div style={{ display: "flex", gap: 16, justifyContent: "center", marginTop: 20 }}>
+                <button onClick={prevCard} style={{ padding: "12px 24px", background: "rgba(255,255,255,0.1)", border: "none", borderRadius: 8, color: "#fff", fontSize: 16, cursor: "pointer" }}>← Önceki</button>
+                <button onClick={nextCard} style={{ padding: "12px 24px", background: "#FFD54F", border: "none", borderRadius: 8, color: "#333", fontSize: 16, fontWeight: 600, cursor: "pointer" }}>Sonraki →</button>
+              </div>
+            </div>
+          ) : (
+            <div>{filteredVocabulary.map((v, i) => (<div key={i} onClick={() => toggleTr(`dict${i}`)} style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, padding: "11px 12px", background: i % 2 === 0 ? "rgba(255,255,255,0.04)" : "transparent", borderRadius: 8, cursor: "pointer", borderLeft: "3px solid #FFD54F", marginBottom: 2 }}><div><div style={{ fontSize: 15, fontWeight: 700 }}>{v.gr}</div><div style={{ fontSize: 11, opacity: 0.45, fontStyle: "italic" }}>{v.pron}</div></div><div style={{ textAlign: "right", fontSize: 13, color: showTr[`dict${i}`] ? "#FFD54F" : "rgba(255,255,255,0.25)", alignSelf: "center" }}>{showTr[`dict${i}`] ? v.tr : "tıkla →"}</div></div>))}</div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // WEEK VIEW
+  const tabs = [{ key: "vocab", label: "📝 Kelimeler" }, { key: "dialogue", label: "💬 Diyaloglar" }, { key: "reading", label: "📖 Okuma" }, { key: "grammar", label: "📐 Gramer" }];
+  if (week?.numbers) tabs.splice(1, 0, { key: "numbers", label: "🔢 Sayılar" });
+
+  return (
+    <div style={{ fontFamily: "'Crimson Pro', Georgia, serif", background: "#081e36", minHeight: "100vh", color: "#e0dbd2" }}>
+      <div style={{ background: `linear-gradient(135deg, ${week.color}, ${week.color}cc)`, padding: "14px 18px", display: "flex", alignItems: "center", gap: 12, position: "sticky", top: 0, zIndex: 10 }}>
+        <button onClick={() => setView("home")} style={{ background: "rgba(255,255,255,0.2)", border: "none", color: "#fff", borderRadius: 8, padding: "6px 14px", cursor: "pointer", fontSize: 13, fontWeight: 600 }}>← Geri</button>
+        <span style={{ fontSize: 22 }}>{week.icon}</span>
+        <div><div style={{ fontSize: 10, opacity: 0.65, textTransform: "uppercase" }}>{week.id}. Hafta</div><div style={{ fontSize: 16, fontWeight: 700, color: "#fff" }}>{week.title}</div></div>
+      </div>
+      <div style={{ display: "flex", gap: 2, padding: "10px 14px 0", overflowX: "auto", background: "#0b2341" }}>
+        {tabs.map((t) => (<button key={t.key} onClick={() => setActiveTab(t.key)} style={{ padding: "9px 12px", border: "none", borderRadius: "8px 8px 0 0", cursor: "pointer", fontSize: 12, fontWeight: 600, whiteSpace: "nowrap", background: activeTab === t.key ? "#112d50" : "transparent", color: activeTab === t.key ? "#fff" : "rgba(255,255,255,0.45)", borderBottom: activeTab === t.key ? `2px solid ${week.color}` : "2px solid transparent" }}>{t.label}</button>))}
+      </div>
+      <div style={{ maxWidth: 760, margin: "0 auto", padding: "18px 14px 40px" }}>
+        {activeTab === "vocab" && (<div><div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}><h3 style={{ margin: 0, fontSize: 15 }}>Kelimeler ({week.vocabulary.length})</h3><label style={{ fontSize: 11, opacity: 0.6, display: "flex", alignItems: "center", gap: 5, cursor: "pointer" }}><input type="checkbox" checked={showPron} onChange={(e) => setShowPron(e.target.checked)} /> Okunuş</label></div>{week.vocabulary.map((v, i) => (<div key={i} onClick={() => toggleTr(`v${i}`)} style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, padding: "11px 12px", background: i % 2 === 0 ? "rgba(255,255,255,0.04)" : "transparent", borderRadius: 8, cursor: "pointer", borderLeft: `3px solid ${week.color}`, marginBottom: 2 }}><div><div style={{ fontSize: 15, fontWeight: 700 }}>{v.gr}</div>{showPron && <div style={{ fontSize: 11, opacity: 0.45, fontStyle: "italic" }}>{v.pron}</div>}</div><div style={{ textAlign: "right", fontSize: 13, color: showTr[`v${i}`] ? "#FFD54F" : "rgba(255,255,255,0.25)", alignSelf: "center" }}>{showTr[`v${i}`] ? v.tr : "tıkla →"}</div></div>))}</div>)}
+        {activeTab === "numbers" && week.numbers && (<div><h3 style={{ margin: "0 0 14px", fontSize: 15 }}>Sayılar</h3><div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(100px, 1fr))", gap: 8 }}>{week.numbers.map((n, i) => (<div key={i} style={{ padding: "12px", background: "rgba(255,255,255,0.04)", borderRadius: 10, textAlign: "center" }}><div style={{ fontSize: 22, fontWeight: 700, color: week.color }}>{n.tr}</div><div style={{ fontSize: 15, fontWeight: 600, marginTop: 3 }}>{n.gr}</div>{showPron && <div style={{ fontSize: 11, opacity: 0.45, fontStyle: "italic" }}>{n.pron}</div>}</div>))}</div></div>)}
+        {activeTab === "dialogue" && (<div style={{ display: "flex", flexDirection: "column", gap: 20 }}>{week.dialogues.map((d, di) => (<div key={di} style={{ background: "rgba(255,255,255,0.03)", borderRadius: 12, overflow: "hidden" }}><div style={{ background: `linear-gradient(135deg, ${week.color}, ${week.color}bb)`, padding: "12px 14px" }}><div style={{ fontSize: 15, fontWeight: 700, color: "#fff" }}>{d.title}</div><div style={{ fontSize: 11, opacity: 0.8, color: "#fff" }}>📍 {d.setting}</div></div><div style={{ padding: "10px 12px", display: "flex", flexDirection: "column", gap: 6 }}>{d.lines.map((l, li) => { const isYou = l.speaker === "Siz"; return (<div key={li} onClick={() => toggleTr(`d${di}l${li}`)} style={{ padding: "9px 11px", borderRadius: 8, cursor: "pointer", background: isYou ? "rgba(13,94,175,0.15)" : "rgba(255,255,255,0.03)", borderLeft: `3px solid ${isYou ? "#0D5EAF" : "rgba(255,255,255,0.12)"}` }}><div style={{ fontSize: 10, fontWeight: 700, opacity: 0.5, marginBottom: 3, textTransform: "uppercase" }}>{l.speaker}</div><div style={{ fontSize: 14, fontWeight: 600, lineHeight: 1.5 }}>{l.gr}</div>{showPron && <div style={{ fontSize: 11, opacity: 0.4, fontStyle: "italic", marginTop: 1 }}>{l.pron}</div>}{showTr[`d${di}l${li}`] && <div style={{ fontSize: 12, color: "#FFD54F", marginTop: 4, paddingTop: 4, borderTop: "1px solid rgba(255,255,255,0.08)" }}>🇹🇷 {l.tr}</div>}</div>); })}</div></div>))}</div>)}
+        {activeTab === "reading" && (<div style={{ background: "rgba(255,255,255,0.03)", borderRadius: 12, overflow: "hidden" }}><div style={{ background: `linear-gradient(135deg, ${week.color}, ${week.color}99)`, padding: "16px 18px" }}><div style={{ fontSize: 10, opacity: 0.7, color: "#fff", textTransform: "uppercase" }}>Okuma — {week.reading.level}</div><div style={{ fontSize: 18, fontWeight: 700, color: "#fff", marginTop: 3 }}>{week.reading.title}</div><div style={{ fontSize: 13, opacity: 0.8, color: "#fff" }}>{week.reading.titleTr}</div></div><div style={{ padding: "14px 16px", display: "flex", flexDirection: "column", gap: 12 }}>{week.reading.paragraphs.map((p, pi) => (<div key={pi} onClick={() => toggleTr(`r${pi}`)} style={{ padding: "12px 14px", background: "rgba(255,255,255,0.03)", borderRadius: 8, cursor: "pointer", borderLeft: `3px solid ${week.color}` }}><div style={{ fontSize: 15, fontWeight: 600, lineHeight: 1.7 }}>{p.gr}</div>{showPron && <div style={{ fontSize: 12, opacity: 0.4, fontStyle: "italic", lineHeight: 1.6, marginTop: 4 }}>{p.pron}</div>}{showTr[`r${pi}`] && <div style={{ fontSize: 13, color: "#FFD54F", marginTop: 8, paddingTop: 8, borderTop: "1px solid rgba(255,255,255,0.08)", lineHeight: 1.6 }}>🇹🇷 {p.tr}</div>}</div>))}</div></div>)}
+        {activeTab === "grammar" && (<div><h3 style={{ margin: "0 0 14px", fontSize: 15 }}>📐 Gramer Notları</h3>{week.grammar.map((g, i) => (<div key={i} style={{ padding: "12px 14px", background: i % 2 === 0 ? "rgba(255,255,255,0.04)" : "transparent", borderRadius: 8, fontSize: 13, lineHeight: 1.7, borderLeft: `3px solid ${week.color}`, marginBottom: 4 }}>{g}</div>))}</div>)}
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>
